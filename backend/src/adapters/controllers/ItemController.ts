@@ -1,0 +1,74 @@
+import { Response, NextFunction } from 'express';
+import { IItemRepository } from '../repositories/IItemRepository';
+import { AuthenticatedRequest } from '../middlewares/authMiddleware';
+import { CreateItem } from '../../usecases/CreateItem';
+import { SearchItems } from '../../usecases/SearchItems';
+import { GetItemById } from '../../usecases/GetItemById';
+import { GetUserItems } from '../../usecases/GetUserItems';
+import { UpdateItem } from '../../usecases/UpdateItem';
+import { Category, Location, Status, UpdateItemData } from '../../entities/Item';
+import { success } from '../../types/api';
+
+export class ItemController {
+  constructor(private itemRepository: IItemRepository) {}
+
+  async create(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const useCase = new CreateItem(this.itemRepository);
+      const item = await useCase.execute({ ...req.body, userId: req.userId! });
+      res.status(201).json(success(item));
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async search(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { category, location, status, search } = req.query;
+      const useCase = new SearchItems(this.itemRepository);
+      const items = await useCase.execute({
+        category: typeof category === 'string' ? (category as Category) : undefined,
+        location: typeof location === 'string' ? (location as Location) : undefined,
+        status: typeof status === 'string' ? (status as Status) : undefined,
+        search: typeof search === 'string' ? search : undefined,
+      });
+      res.status(200).json(success(items));
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async getMyItems(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const useCase = new GetUserItems(this.itemRepository);
+      const items = await useCase.execute(req.userId!);
+      res.status(200).json(success(items));
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async getById(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const useCase = new GetItemById(this.itemRepository);
+      const item = await useCase.execute(req.params['id'] as string);
+      res.status(200).json(success(item));
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async update(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const useCase = new UpdateItem(this.itemRepository);
+      const item = await useCase.execute({
+        itemId: req.params['id'] as string,
+        requestingUserId: req.userId!,
+        data: req.body as UpdateItemData,
+      });
+      res.status(200).json(success(item));
+    } catch (err) {
+      next(err);
+    }
+  }
+}

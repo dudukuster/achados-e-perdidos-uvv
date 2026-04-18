@@ -1,0 +1,79 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Category {
+  ELETRONICOS
+  DOCUMENTOS
+  ACESSORIOS
+  MATERIAIS_ESCOLARES
+  OUTROS
+}
+
+enum Location {
+  BIBLIOTECA
+  LABORATORIOS
+  CANTINA
+  SALAS_DE_AULA
+  AREAS_COMUNS
+}
+
+enum Status {
+  PERDIDO
+  ENCONTRADO
+}
+
+model User {
+  id        String    @id @default(uuid())
+  name      String
+  email     String    @unique
+  password  String
+  items     Item[]
+  comments  Comment[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Item {
+  id          String    @id @default(uuid())
+  title       String
+  description String
+  category    Category
+  location    Location
+  lostDate    DateTime
+  photoUrl    String
+  status      Status    @default(PERDIDO)
+  user        User      @relation(fields: [userId], references: [id])
+  userId      String
+  comments    Comment[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([category])
+  @@index([location])
+  @@index([status])
+  @@index([userId])
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  text      String
+  item      Item     @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  itemId    String
+  author    User     @relation(fields: [authorId], references: [id])
+  authorId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([itemId])
+  @@index([authorId])
+}
