@@ -1,17 +1,18 @@
-import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router";
-import { toast } from "sonner";
-import { ArrowLeft, ImageIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Navbar } from "@/components/Navbar";
-import { itemService } from "@/services/itemService";
-import { useAuth } from "@/contexts/AuthContext";
-import { Category, Location, Status, Item, categoryLabels, locationLabels } from "@/types";
+import { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router';
+import { toast } from 'sonner';
+import { ArrowLeft } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Navbar } from '@/components/Navbar';
+import { ImageUploader } from '@/components/features/ImageUploader';
+import { itemService } from '@/services/itemService';
+import { useAuth } from '@/contexts/AuthContext';
+import { Category, Location, Status, Item, categoryLabels, locationLabels } from '@/types';
 
 export function EditItemPage() {
   const { id } = useParams<{ id: string }>();
@@ -20,13 +21,13 @@ export function EditItemPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [category, setCategory] = useState<Category | "">("");
-  const [location, setLocation] = useState<Location | "">("");
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [category, setCategory] = useState<Category | ''>('');
+  const [location, setLocation] = useState<Location | ''>('');
   const [status, setStatus] = useState<Status>(Status.PERDIDO);
-  const [lostDate, setLostDate] = useState("");
-  const [photoUrl, setPhotoUrl] = useState("");
+  const [lostDate, setLostDate] = useState('');
+  const [images, setImages] = useState<string[]>([]);
 
   useEffect(() => {
     if (!id) return;
@@ -43,18 +44,24 @@ export function EditItemPage() {
         setLocation(item.location);
         setStatus(item.status);
         setLostDate(item.lostDate.slice(0, 10));
-        setPhotoUrl(item.photoUrl);
+        setImages(item.images.map((image) => image.url));
       })
-      .catch(() => navigate("/"))
+      .catch(() => navigate('/'))
       .finally(() => setLoading(false));
   }, [id, user, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!category || !location) {
-      toast.error("Campos obrigatórios", { description: "Selecione categoria e local" });
+      toast.error('Campos obrigatorios', { description: 'Selecione categoria e local' });
       return;
     }
+
+    if (images.length === 0) {
+      toast.error('Imagem obrigatoria', { description: 'Mantenha pelo menos 1 imagem no item.' });
+      return;
+    }
+
     setSaving(true);
     try {
       await itemService.update(id!, {
@@ -64,12 +71,12 @@ export function EditItemPage() {
         location: location as Location,
         status,
         lostDate: new Date(lostDate).toISOString(),
-        photoUrl,
+        images,
       });
-      toast.success("Item atualizado!", { description: "As alterações foram salvas." });
+      toast.success('Item atualizado!', { description: 'As alteracoes foram salvas.' });
       navigate(`/items/${id}`);
     } catch {
-      toast.error("Erro ao salvar", { description: "Tente novamente mais tarde" });
+      toast.error('Erro ao salvar', { description: 'Tente novamente mais tarde' });
     } finally {
       setSaving(false);
     }
@@ -95,8 +102,8 @@ export function EditItemPage() {
         </Button>
         <Card className="border-border/60">
           <CardHeader>
-            <h1 className="font-heading text-xl font-bold text-foreground">Editar Publicação</h1>
-            <p className="text-sm text-muted-foreground">Atualize as informações do item</p>
+            <h1 className="font-heading text-xl font-bold text-foreground">Editar Publicacao</h1>
+            <p className="text-sm text-muted-foreground">Atualize as informacoes do item</p>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -105,7 +112,7 @@ export function EditItemPage() {
                 <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} required />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="description">Descrição</Label>
+                <Label htmlFor="description">Descricao</Label>
                 <Textarea id="description" value={description} onChange={(e) => setDescription(e.target.value)} required rows={3} />
               </div>
               <div className="grid grid-cols-2 gap-4">
@@ -147,21 +154,11 @@ export function EditItemPage() {
                 <Input id="lostDate" type="date" value={lostDate} onChange={(e) => setLostDate(e.target.value)} required />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="photoUrl">URL da foto</Label>
-                <Input id="photoUrl" type="url" placeholder="https://exemplo.com/foto.jpg" value={photoUrl} onChange={(e) => setPhotoUrl(e.target.value)} />
-                {photoUrl ? (
-                  <img src={photoUrl} alt="Preview" className="h-40 w-full rounded-lg object-cover border border-border" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
-                ) : (
-                  <div className="flex h-32 items-center justify-center rounded-lg border-2 border-dashed border-border bg-muted/30">
-                    <div className="flex flex-col items-center gap-1 text-muted-foreground">
-                      <ImageIcon className="h-8 w-8" />
-                      <span className="text-xs">Cole a URL da foto acima</span>
-                    </div>
-                  </div>
-                )}
+                <Label>Imagens do item</Label>
+                <ImageUploader images={images} onChange={setImages} onUpload={itemService.uploadImages} maxImages={5} />
               </div>
               <Button type="submit" className="w-full" disabled={saving}>
-                {saving ? "Salvando..." : "Salvar alterações"}
+                {saving ? 'Salvando...' : 'Salvar alteracoes'}
               </Button>
             </form>
           </CardContent>
