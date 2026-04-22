@@ -1,4 +1,4 @@
-import bcrypt from 'bcrypt';
+﻿import bcrypt from 'bcrypt';
 import { IUserRepository } from '../adapters/repositories/IUserRepository';
 import { PublicUser } from '../entities/User';
 import { ConflictError } from '../shared/errors/AppError';
@@ -13,20 +13,24 @@ export class RegisterUser {
   constructor(private userRepository: IUserRepository) {}
 
   async execute({ name, email, password }: RegisterUserInput): Promise<PublicUser> {
-    if (!email.toLowerCase().endsWith('@uvv.br')) {
-      throw new Error('Somente e-mails institucionais @uvv.br são permitidos.');
+    const normalizedEmail = email.toLowerCase();
+    const isInstitutionalEmail =
+      normalizedEmail.endsWith('@uvv.br') || normalizedEmail.endsWith('@uvvnet.com.br');
+
+    if (!isInstitutionalEmail) {
+      throw new Error('Somente e-mails institucionais @uvv.br ou @uvvnet.com.br sao permitidos.');
     }
 
-    const existing = await this.userRepository.findByEmail(email.toLowerCase());
+    const existing = await this.userRepository.findByEmail(normalizedEmail);
     if (existing) {
-      throw new ConflictError('Este e-mail já está cadastrado.');
+      throw new ConflictError('Este e-mail ja esta cadastrado.');
     }
 
     const hashedPassword = await bcrypt.hash(password, 12);
 
     return this.userRepository.create({
       name,
-      email: email.toLowerCase(),
+      email: normalizedEmail,
       password: hashedPassword,
     });
   }

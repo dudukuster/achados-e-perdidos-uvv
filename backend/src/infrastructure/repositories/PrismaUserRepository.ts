@@ -21,4 +21,11 @@ export class PrismaUserRepository implements IUserRepository {
       select: { id: true, name: true, email: true, createdAt: true, updatedAt: true },
     });
   }
+
+  async updatePassword(userId: string, hashedPassword: string): Promise<void> {
+    await prisma.user.update({
+      where: { id: userId },
+      data: { password: hashedPassword },
+    });
+  }
 }

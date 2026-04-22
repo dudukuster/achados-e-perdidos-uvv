@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { toast } from "sonner";
 import { Search } from "lucide-react";
@@ -18,17 +18,22 @@ export function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email.endsWith("@uvv.br")) {
-      toast.error("E-mail inválido", { description: "Use um e-mail institucional @uvv.br" });
+    const normalizedEmail = email.toLowerCase();
+    const isInstitutionalEmail =
+      normalizedEmail.endsWith("@uvv.br") || normalizedEmail.endsWith("@uvvnet.com.br");
+
+    if (!isInstitutionalEmail) {
+      toast.error("E-mail invalido", { description: "Use um e-mail institucional @uvv.br ou @uvvnet.com.br" });
       return;
     }
+
     setLoading(true);
     try {
-      const data = await authService.login({ email, password });
+      const data = await authService.login({ email: normalizedEmail, password });
       login(data.token, data.user);
       navigate("/");
     } catch {
-      toast.error("Credenciais inválidas", { description: "Verifique seu e-mail e senha" });
+      toast.error("Credenciais invalidas", { description: "Verifique seu e-mail e senha" });
     } finally {
       setLoading(false);
     }
@@ -48,11 +53,18 @@ export function LoginPage() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">E-mail institucional</Label>
-              <Input id="email" type="email" placeholder="seu.nome@uvv.br" value={email} onChange={(e) => setEmail(e.target.value)} required />
+              <Input
+                id="email"
+                type="email"
+                placeholder="seu.nome@uvv.br ou @uvvnet.com.br"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Senha</Label>
-              <Input id="password" type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required />
+              <Input id="password" type="password" placeholder="********" value={password} onChange={(e) => setPassword(e.target.value)} required />
             </div>
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? "Entrando..." : "Entrar"}

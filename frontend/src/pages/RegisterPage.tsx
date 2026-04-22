@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { toast } from "sonner";
 import { Search } from "lucide-react";
@@ -17,18 +17,24 @@ export function RegisterPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email.endsWith("@uvv.br")) {
-      toast.error("E-mail inválido", { description: "Use um e-mail institucional @uvv.br" });
+    const normalizedEmail = email.toLowerCase();
+    const isInstitutionalEmail =
+      normalizedEmail.endsWith("@uvv.br") || normalizedEmail.endsWith("@uvvnet.com.br");
+
+    if (!isInstitutionalEmail) {
+      toast.error("E-mail invalido", { description: "Use um e-mail institucional @uvv.br ou @uvvnet.com.br" });
       return;
     }
+
     if (password.length < 6) {
-      toast.error("Senha inválida", { description: "A senha deve ter pelo menos 6 caracteres" });
+      toast.error("Senha invalida", { description: "A senha deve ter pelo menos 6 caracteres" });
       return;
     }
+
     setLoading(true);
     try {
-      await authService.register({ name, email, password });
-      toast.success("Conta criada!", { description: "Faça login para continuar." });
+      await authService.register({ name, email: normalizedEmail, password });
+      toast.success("Conta criada!", { description: "Faca login para continuar." });
       navigate("/login");
     } catch {
       toast.error("Erro ao criar conta", { description: "Verifique os dados e tente novamente" });
@@ -45,7 +51,7 @@ export function RegisterPage() {
             <Search className="h-7 w-7 text-primary-foreground" />
           </div>
           <h1 className="font-heading text-2xl font-bold text-foreground">Criar Conta</h1>
-          <p className="text-sm text-muted-foreground">Cadastre-se com seu e-mail @uvv.br</p>
+          <p className="text-sm text-muted-foreground">Cadastre-se com e-mail @uvv.br ou @uvvnet.com.br</p>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -55,17 +61,24 @@ export function RegisterPage() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">E-mail institucional</Label>
-              <Input id="email" type="email" placeholder="seu.nome@uvv.br" value={email} onChange={(e) => setEmail(e.target.value)} required />
+              <Input
+                id="email"
+                type="email"
+                placeholder="seu.nome@uvv.br ou @uvvnet.com.br"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Senha</Label>
-              <Input id="password" type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required />
+              <Input id="password" type="password" placeholder="********" value={password} onChange={(e) => setPassword(e.target.value)} required />
             </div>
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? "Criando..." : "Cadastrar"}
             </Button>
             <p className="text-center text-sm text-muted-foreground">
-              Já tem conta?{" "}
+              Ja tem conta?{" "}
               <Link to="/login" className="text-primary hover:underline">Entrar</Link>
             </p>
           </form>
