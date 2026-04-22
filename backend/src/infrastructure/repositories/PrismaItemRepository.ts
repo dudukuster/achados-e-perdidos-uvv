@@ -2,13 +2,38 @@ import { CreateItemData, Item, SearchFilters, UpdateItemData } from '../../entit
 import { IItemRepository } from '../../adapters/repositories/IItemRepository';
 import { prisma } from '../database/prismaClient';
 
+function mapImageUrlsToCreate(images: string[]) {
+  return images.map((url, index) => ({
+    url,
+    position: index,
+  }));
+}
+
+const includeImages = {
+  images: {
+    orderBy: {
+      position: 'asc' as const,
+    },
+  },
+};
+
 export class PrismaItemRepository implements IItemRepository {
   async create(data: CreateItemData): Promise<Item> {
-    return prisma.item.create({ data }) as unknown as Item;
+    const { images, ...itemData } = data;
+
+    return (prisma as any).item.create({
+      data: {
+        ...itemData,
+        images: {
+          create: mapImageUrlsToCreate(images),
+        },
+      },
+      include: includeImages,
+    }) as Promise<Item>;
   }
 
   async findById(id: string): Promise<Item | null> {
-    return prisma.item.findUnique({ where: { id } }) as unknown as Item | null;
+    return (prisma as any).item.findUnique({ where: { id }, include: includeImages }) as Promise<Item | null>;
   }
 
   async findAll(filters: SearchFilters): Promise<Item[]> {
@@ -24,20 +49,40 @@ export class PrismaItemRepository implements IItemRepository {
       ];
     }
 
-    return prisma.item.findMany({
+    return (prisma as any).item.findMany({
       where,
       orderBy: { createdAt: 'desc' },
-    }) as unknown as Item[];
+      include: includeImages,
+    }) as Promise<Item[]>;
   }
 
   async findByUserId(userId: string): Promise<Item[]> {
-    return prisma.item.findMany({
+    return (prisma as any).item.findMany({
       where: { userId },
       orderBy: { createdAt: 'desc' },
-    }) as unknown as Item[];
+      include: includeImages,
+    }) as Promise<Item[]>;
   }
 
   async update(id: string, data: UpdateItemData): Promise<Item> {
-    return prisma.item.update({ where: { id }, data }) as unknown as Item;
+    const { images, ...itemData } = data;
+
+    const imageOperation = images
+      ? {
+          images: {
+            deleteMany: {},
+            create: mapImageUrlsToCreate(images),
+          },
+        }
+      : {};
+
+    return (prisma as any).item.update({
+      where: { id },
+      data: {
+        ...itemData,
+        ...imageOperation,
+      },
+      include: includeImages,
+    }) as Promise<Item>;
   }
 }

@@ -7,7 +7,7 @@ interface CreateItemData {
   category: string;
   location: string;
   lostDate: string;
-  photoUrl: string;
+  images: string[];
 }
 
 export interface UpdateItemData {
@@ -16,11 +16,24 @@ export interface UpdateItemData {
   category?: Category;
   location?: Location;
   lostDate?: string;
-  photoUrl?: string;
   status?: Status;
+  images?: string[];
 }
 
 export const itemService = {
+  async uploadImages(files: File[]): Promise<string[]> {
+    const formData = new FormData();
+    files.forEach((file) => formData.append('images', file));
+
+    const response = await api.post('/items/images/upload', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+
+    return response.data.images;
+  },
+
   async create(data: CreateItemData): Promise<Item> {
     const response = await api.post('/items', data);
     return response.data;

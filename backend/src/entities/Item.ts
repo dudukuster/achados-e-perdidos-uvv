@@ -1,3 +1,11 @@
+export interface ItemImage {
+  id: string;
+  url: string;
+  position: number;
+  itemId: string;
+  createdAt: Date;
+}
+
 export enum Category {
   ELETRONICOS = 'ELETRONICOS',
   DOCUMENTOS = 'DOCUMENTOS',
@@ -26,15 +34,32 @@ export interface Item {
   category: Category;
   location: Location;
   lostDate: Date;
-  photoUrl: string;
   status: Status;
   userId: string;
+  images: ItemImage[];
   createdAt: Date;
   updatedAt: Date;
 }
 
-export type CreateItemData = Omit<Item, 'id' | 'status' | 'createdAt' | 'updatedAt'>;
-export type UpdateItemData = Partial<Pick<Item, 'title' | 'description' | 'category' | 'location' | 'lostDate' | 'photoUrl' | 'status'>>;
+export interface CreateItemData {
+  title: string;
+  description: string;
+  category: Category;
+  location: Location;
+  lostDate: Date;
+  userId: string;
+  images: string[];
+}
+
+export type UpdateItemData = Partial<{
+  title: string;
+  description: string;
+  category: Category;
+  location: Location;
+  lostDate: Date;
+  status: Status;
+  images: string[];
+}>;
 
 export interface SearchFilters {
   category?: Category;

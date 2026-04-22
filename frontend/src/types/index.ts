@@ -27,6 +27,14 @@ export interface User {
   updatedAt: string;
 }
 
+export interface ItemImage {
+  id: string;
+  url: string;
+  position: number;
+  itemId: string;
+  createdAt: string;
+}
+
 export interface Item {
   id: string;
   title: string;
@@ -34,9 +42,9 @@ export interface Item {
   category: Category;
   location: Location;
   lostDate: string;
-  photoUrl: string;
   status: Status;
   userId: string;
+  images: ItemImage[];
   createdAt: string;
   updatedAt: string;
 }
@@ -63,17 +71,17 @@ export interface SearchFilters {
 }
 
 export const categoryLabels: Record<Category, string> = {
-  [Category.ELETRONICOS]: 'Eletrônicos',
+  [Category.ELETRONICOS]: 'Eletronicos',
   [Category.DOCUMENTOS]: 'Documentos',
-  [Category.ACESSORIOS]: 'Acessórios',
+  [Category.ACESSORIOS]: 'Acessorios',
   [Category.MATERIAIS_ESCOLARES]: 'Materiais Escolares',
   [Category.OUTROS]: 'Outros',
 };
 
 export const locationLabels: Record<Location, string> = {
   [Location.BIBLIOTECA]: 'Biblioteca',
-  [Location.LABORATORIOS]: 'Laboratórios',
+  [Location.LABORATORIOS]: 'Laboratorios',
   [Location.CANTINA]: 'Cantina',
   [Location.SALAS_DE_AULA]: 'Salas de Aula',
-  [Location.AREAS_COMUNS]: 'Áreas Comuns',
+  [Location.AREAS_COMUNS]: 'Areas Comuns',
 };
