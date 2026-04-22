@@ -7,10 +7,28 @@ import { GetItemById } from '../../usecases/GetItemById';
 import { GetUserItems } from '../../usecases/GetUserItems';
 import { UpdateItem } from '../../usecases/UpdateItem';
 import { Category, Location, Status, UpdateItemData } from '../../entities/Item';
+import { BadRequestError } from '../../shared/errors/AppError';
 import { success } from '../../types/api';
 
 export class ItemController {
   constructor(private itemRepository: IItemRepository) {}
+
+  async uploadImages(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const files = req.files as Express.Multer.File[] | undefined;
+
+      if (!files || files.length === 0) {
+        throw new BadRequestError('Nenhuma imagem enviada.');
+      }
+
+      const baseUrl = `${req.protocol}://${req.get('host')}`;
+      const images = files.map((file) => `${baseUrl}/uploads/items/${file.filename}`);
+
+      res.status(201).json(success({ images }));
+    } catch (err) {
+      next(err);
+    }
+  }
 
   async create(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
     try {

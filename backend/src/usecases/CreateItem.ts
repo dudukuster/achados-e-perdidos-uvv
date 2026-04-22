@@ -1,4 +1,4 @@
-import { IItemRepository } from '../adapters/repositories/IItemRepository';
+﻿import { IItemRepository } from '../adapters/repositories/IItemRepository';
 import { Category, Item, Location } from '../entities/Item';
 
 interface CreateItemInput {
@@ -7,8 +7,8 @@ interface CreateItemInput {
   category: Category;
   location: Location;
   lostDate: Date;
-  photoUrl: string;
   userId: string;
+  images: string[];
 }
 
 export class CreateItem {
