@@ -60,7 +60,7 @@ export function Navbar({ onSearch, searchValue }: NavbarProps) {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
             <DropdownMenuItem className="text-muted-foreground text-xs" disabled>
-              {user?.email}
+              {user?.name}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => navigate("/my-items")}>
               <FileText className="mr-2 h-4 w-4" />
