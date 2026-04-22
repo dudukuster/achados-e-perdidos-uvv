@@ -1,11 +1,14 @@
-import express from 'express';
+﻿import express from 'express';
 import cors from 'cors';
 import { PrismaUserRepository } from '../repositories/PrismaUserRepository';
 import { PrismaItemRepository } from '../repositories/PrismaItemRepository';
 import { PrismaCommentRepository } from '../repositories/PrismaCommentRepository';
+import { PrismaPasswordResetTokenRepository } from '../repositories/PrismaPasswordResetTokenRepository';
 import { AuthController } from '../../adapters/controllers/AuthController';
 import { ItemController } from '../../adapters/controllers/ItemController';
 import { CommentController } from '../../adapters/controllers/CommentController';
+import { ConsoleEmailService } from '../services/ConsoleEmailService';
+import { NodemailerEmailService } from '../services/NodemailerEmailService';
 import authRoutes from './routes/authRoutes';
 import itemRoutes from './routes/itemRoutes';
 import commentRoutes, { commentCrudRoutes } from './routes/commentRoutes';
@@ -21,8 +24,15 @@ app.use('/uploads', express.static('uploads'));
 const userRepository = new PrismaUserRepository();
 const itemRepository = new PrismaItemRepository();
 const commentRepository = new PrismaCommentRepository();
+const passwordResetTokenRepository = new PrismaPasswordResetTokenRepository();
 
-const authController = new AuthController(userRepository);
+const emailService = process.env['SMTP_HOST'] ? new NodemailerEmailService() : new ConsoleEmailService();
+
+const authController = new AuthController(
+  userRepository,
+  passwordResetTokenRepository,
+  emailService,
+);
 const itemController = new ItemController(itemRepository);
 const commentController = new CommentController(commentRepository, itemRepository);
 

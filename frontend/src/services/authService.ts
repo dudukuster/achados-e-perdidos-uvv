@@ -12,6 +12,12 @@ interface LoginData {
   password: string;
 }
 
+interface ResetPasswordData {
+  token: string;
+  password: string;
+  confirmPassword: string;
+}
+
 export const authService = {
   async register(data: RegisterData): Promise<AuthResponse['user']> {
     const response = await api.post('/auth/register', data);
@@ -25,5 +31,9 @@ export const authService = {
 
   async recoverPassword(email: string): Promise<void> {
     await api.post('/auth/recover-password', { email });
+  },
+
+  async resetPassword(data: ResetPasswordData): Promise<void> {
+    await api.post('/auth/reset-password', data);
   },
 };
