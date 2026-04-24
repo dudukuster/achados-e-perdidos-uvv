@@ -1,7 +1,7 @@
-import { useRef, useState } from 'react';
-import { ImageIcon, Upload, X, ArrowLeft, ArrowRight } from 'lucide-react';
-import { toast } from 'sonner';
-import { Button } from '@/components/ui/button';
+import { useRef, useState } from "react";
+import { ArrowLeft, ArrowRight, ImageIcon, Upload, X } from "lucide-react";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 
 interface ImageUploaderProps {
   images: string[];
@@ -30,7 +30,7 @@ export function ImageUploader({ images, onChange, onUpload, maxImages = 5 }: Ima
       const uploaded = await onUpload(selected);
       onChange([...images, ...uploaded]);
     } catch {
-      toast.error('Falha no upload', { description: 'Verifique formato (JPG/PNG/WEBP) e tamanho maximo de 5MB.' });
+      toast.error("Falha no upload", { description: "Verifique formato (JPG/PNG/WEBP) e tamanho máximo de 5MB." });
     } finally {
       setUploading(false);
     }
@@ -50,9 +50,13 @@ export function ImageUploader({ images, onChange, onUpload, maxImages = 5 }: Ima
   };
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       <div
-        className={`rounded-lg border-2 border-dashed p-6 text-center transition ${dragging ? 'border-primary bg-primary/5' : 'border-border bg-muted/30'}`}
+        className={`rounded-[8px] border border-dashed p-6 text-center transition ${
+          dragging
+            ? "border-[#f4634c] bg-[#fff4f1]"
+            : "border-[#061f40]/20 bg-[#faf7f1]"
+        }`}
         onDragOver={(e) => {
           e.preventDefault();
           setDragging(true);
@@ -64,19 +68,24 @@ export function ImageUploader({ images, onChange, onUpload, maxImages = 5 }: Ima
           void addFiles(e.dataTransfer.files);
         }}
       >
-        <div className="flex flex-col items-center gap-2 text-muted-foreground">
-          <Upload className="h-8 w-8" />
-          <p className="text-sm">Arraste imagens aqui ou clique para selecionar</p>
-          <p className="text-xs">JPG, PNG, WEBP ate 5MB | maximo {maxImages} imagens</p>
+        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-[8px] bg-white text-[#f4634c] shadow-sm">
+          <Upload className="h-7 w-7" />
+        </div>
+        <div className="space-y-1">
+          <p className="text-sm font-bold text-[#061f40]">Arraste imagens aqui</p>
+          <p className="text-xs leading-5 text-[#66758a]">
+            JPG, PNG ou WEBP até 5MB. Máximo de {maxImages} imagens.
+          </p>
         </div>
         <Button
           type="button"
           variant="outline"
-          className="mt-3"
+          className="mt-4 rounded-[8px] border-[#061f40]/20 bg-white text-[#061f40] hover:bg-[#061f40] hover:text-white"
           onClick={() => inputRef.current?.click()}
           disabled={uploading || images.length >= maxImages}
         >
-          {uploading ? 'Enviando...' : 'Selecionar imagens'}
+          <ImageIcon className="h-4 w-4" />
+          {uploading ? "Enviando..." : "Selecionar imagens"}
         </Button>
         <input
           ref={inputRef}
@@ -86,7 +95,7 @@ export function ImageUploader({ images, onChange, onUpload, maxImages = 5 }: Ima
           className="hidden"
           onChange={(e) => {
             void addFiles(e.target.files);
-            e.target.value = '';
+            e.target.value = "";
           }}
         />
       </div>
@@ -94,19 +103,19 @@ export function ImageUploader({ images, onChange, onUpload, maxImages = 5 }: Ima
       {images.length > 0 ? (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           {images.map((url, index) => (
-            <div key={`${url}-${index}`} className="relative overflow-hidden rounded-lg border border-border">
-              <img src={url} alt={`Imagem ${index + 1}`} className="h-28 w-full bg-muted object-contain p-1" />
-              <div className="absolute left-1 top-1 rounded bg-black/60 px-2 py-0.5 text-xs text-white">
+            <div key={`${url}-${index}`} className="relative overflow-hidden rounded-[8px] border border-[#061f40]/10 bg-white shadow-sm">
+              <img src={url} alt={`Imagem ${index + 1}`} className="h-28 w-full bg-[#ede8df] object-contain p-2" />
+              <div className="absolute left-2 top-2 rounded-[6px] bg-[#061f40]/90 px-2 py-0.5 text-xs font-bold text-white">
                 #{index + 1}
               </div>
-              <div className="absolute bottom-1 left-1 right-1 flex items-center justify-between gap-1">
-                <Button type="button" size="icon" variant="secondary" className="h-7 w-7" onClick={() => move(index, -1)} disabled={index === 0}>
+              <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between gap-1">
+                <Button type="button" size="icon" variant="secondary" className="h-8 w-8 rounded-[8px] bg-white/90" onClick={() => move(index, -1)} disabled={index === 0}>
                   <ArrowLeft className="h-3.5 w-3.5" />
                 </Button>
-                <Button type="button" size="icon" variant="secondary" className="h-7 w-7" onClick={() => move(index, 1)} disabled={index === images.length - 1}>
+                <Button type="button" size="icon" variant="secondary" className="h-8 w-8 rounded-[8px] bg-white/90" onClick={() => move(index, 1)} disabled={index === images.length - 1}>
                   <ArrowRight className="h-3.5 w-3.5" />
                 </Button>
-                <Button type="button" size="icon" variant="destructive" className="h-7 w-7" onClick={() => removeAt(index)}>
+                <Button type="button" size="icon" variant="destructive" className="h-8 w-8 rounded-[8px]" onClick={() => removeAt(index)}>
                   <X className="h-3.5 w-3.5" />
                 </Button>
               </div>
@@ -114,7 +123,7 @@ export function ImageUploader({ images, onChange, onUpload, maxImages = 5 }: Ima
           ))}
         </div>
       ) : (
-        <div className="flex h-20 items-center justify-center rounded-lg border border-border/60 text-muted-foreground">
+        <div className="flex h-24 items-center justify-center rounded-[8px] border border-[#061f40]/10 bg-white/70 text-sm font-medium text-[#66758a]">
           <ImageIcon className="mr-2 h-4 w-4" /> Nenhuma imagem enviada
         </div>
       )}

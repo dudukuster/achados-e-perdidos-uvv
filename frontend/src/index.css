@@ -67,3 +67,34 @@
     font-family: var(--font-heading);
   }
 }
+
+@layer components {
+  .campus-page {
+    min-height: 100vh;
+    color: #061f40;
+    background:
+      linear-gradient(135deg, rgba(6, 31, 64, 0.045) 1px, transparent 1px),
+      linear-gradient(180deg, #f6f7f2 0%, #f1f4ef 48%, #f7f3ec 100%);
+    background-size: 24px 24px, auto;
+  }
+
+  .campus-panel {
+    border: 1px solid rgba(6, 31, 64, 0.1);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.82);
+    box-shadow: 0 18px 44px rgba(6, 31, 64, 0.08);
+    backdrop-filter: blur(16px);
+  }
+
+  .campus-soft-panel {
+    border: 1px solid rgba(6, 31, 64, 0.08);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.62);
+  }
+
+  .campus-input {
+    border-color: rgba(6, 31, 64, 0.12);
+    background: rgba(255, 255, 255, 0.86);
+    color: #061f40;
+  }
+}
