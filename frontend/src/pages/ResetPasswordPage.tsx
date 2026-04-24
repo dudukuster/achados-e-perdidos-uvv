@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { authService } from "@/services/authService";
+import { getApiErrorMessage } from "@/lib/api-error";
 
 export function ResetPasswordPage() {
   const [searchParams] = useSearchParams();
@@ -46,8 +47,10 @@ export function ResetPasswordPage() {
       await authService.resetPassword({ token, password, confirmPassword });
       toast.success("Senha atualizada", { description: "Faça login com sua nova senha" });
       navigate("/login");
-    } catch {
-      toast.error("Não foi possível redefinir", { description: "Código inválido, expirado ou já utilizado" });
+    } catch (error) {
+      toast.error("Não foi possível redefinir", {
+        description: getApiErrorMessage(error, "Código inválido, expirado ou já utilizado"),
+      });
     } finally {
       setLoading(false);
     }

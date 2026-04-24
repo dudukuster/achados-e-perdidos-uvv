@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { Mail, Lock, ArrowRight } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { authService } from "@/services/authService";
+import { getApiErrorMessage } from "@/lib/api-error";
 
 export function LoginPage() {
   const [email, setEmail] = useState("");
@@ -27,8 +28,10 @@ export function LoginPage() {
       const data = await authService.login({ email: normalizedEmail, password });
       login(data.token, data.user);
       navigate("/");
-    } catch {
-      toast.error("Credenciais inválidas", { description: "Verifique seu e-mail e senha" });
+    } catch (error) {
+      toast.error("Erro no login", {
+        description: getApiErrorMessage(error, "Verifique seu e-mail e senha"),
+      });
     } finally {
       setLoading(false);
     }
