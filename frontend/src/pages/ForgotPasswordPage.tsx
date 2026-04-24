@@ -11,13 +11,17 @@ export function ForgotPasswordPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email.endsWith("@uvv.br")) {
-      toast.error("E-mail inválido", { description: "Use um e-mail institucional @uvv.br" });
+    const normalizedEmail = email.trim().toLowerCase();
+    const isInstitutionalEmail =
+      normalizedEmail.endsWith("@uvv.br") || normalizedEmail.endsWith("@uvvnet.com.br");
+
+    if (!isInstitutionalEmail) {
+      toast.error("E-mail inválido", { description: "Use um e-mail institucional @uvv.br ou @uvvnet.com.br" });
       return;
     }
     setLoading(true);
     try {
-      await authService.recoverPassword(email);
+      await authService.recoverPassword(normalizedEmail);
       setSubmitted(true);
       toast.success("E-mail enviado!", { description: "Verifique sua caixa de entrada para redefinir a senha." });
     } catch {
@@ -97,7 +101,7 @@ export function ForgotPasswordPage() {
                     <input
                       id="email"
                       type="email"
-                      placeholder="seu.nome@uvv.br"
+                      placeholder="seu.nome@uvv.br ou @uvvnet.com.br"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       className="w-full pl-12 pr-4 py-3.5 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all duration-200"

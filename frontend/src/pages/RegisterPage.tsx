@@ -13,8 +13,12 @@ export function RegisterPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email.endsWith("@uvv.br")) {
-      toast.error("E-mail inválido", { description: "Use um e-mail institucional @uvv.br" });
+    const normalizedEmail = email.trim().toLowerCase();
+    const isInstitutionalEmail =
+      normalizedEmail.endsWith("@uvv.br") || normalizedEmail.endsWith("@uvvnet.com.br");
+
+    if (!isInstitutionalEmail) {
+      toast.error("E-mail inválido", { description: "Use um e-mail institucional @uvv.br ou @uvvnet.com.br" });
       return;
     }
     if (password.length < 6) {
@@ -23,7 +27,7 @@ export function RegisterPage() {
     }
     setLoading(true);
     try {
-      await authService.register({ name, email, password });
+      await authService.register({ name, email: normalizedEmail, password });
       toast.success("Conta criada!", { description: "Faça login para continuar." });
       navigate("/login");
     } catch {
@@ -101,7 +105,7 @@ export function RegisterPage() {
               Criar sua conta
             </h2>
             <p className="text-slate-500 mt-2">
-              Cadastre-se com seu e-mail @uvv.br
+              Cadastre-se com seu e-mail @uvv.br ou @uvvnet.com.br
             </p>
           </div>
 
@@ -133,7 +137,7 @@ export function RegisterPage() {
                 <input
                   id="email"
                   type="email"
-                  placeholder="seu.nome@uvv.br"
+                  placeholder="seu.nome@uvv.br ou @uvvnet.com.br"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full pl-12 pr-4 py-3.5 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all duration-200"
