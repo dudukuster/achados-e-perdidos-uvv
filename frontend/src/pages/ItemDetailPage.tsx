@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams, useNavigate } from "react-router";
+import { toast } from "sonner";
 import { ArrowLeft, Calendar, ChevronLeft, ChevronRight, Edit3, ImageIcon, MapPin, Tag, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -7,6 +8,7 @@ import { Navbar } from "@/components/Navbar";
 import { CommentSection } from "@/components/features/CommentSection";
 import { itemService } from "@/services/itemService";
 import { useAuth } from "@/contexts/AuthContext";
+import { getApiErrorMessage } from "@/lib/api-error";
 import { Item, Status, categoryLabels, locationLabels } from "@/types";
 
 export function ItemDetailPage() {
@@ -26,7 +28,12 @@ export function ItemDetailPage() {
         setItem(data);
         setSelectedImageIndex(0);
       })
-      .catch(() => navigate("/"))
+      .catch((error) => {
+        toast.error("Erro ao carregar item", {
+          description: getApiErrorMessage(error, "Não foi possível abrir esta publicação."),
+        });
+        navigate("/");
+      })
       .finally(() => setLoading(false));
   }, [id, navigate]);
 

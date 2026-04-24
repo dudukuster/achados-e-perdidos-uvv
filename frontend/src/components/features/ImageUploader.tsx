@@ -1,7 +1,8 @@
-import { useRef, useState } from "react";
+﻿import { useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, ImageIcon, Upload, X } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { getApiErrorMessage } from "@/lib/api-error";
 
 interface ImageUploaderProps {
   images: string[];
@@ -29,8 +30,10 @@ export function ImageUploader({ images, onChange, onUpload, maxImages = 5 }: Ima
     try {
       const uploaded = await onUpload(selected);
       onChange([...images, ...uploaded]);
-    } catch {
-      toast.error("Falha no upload", { description: "Verifique formato (JPG/PNG/WEBP) e tamanho máximo de 5MB." });
+    } catch (error) {
+      toast.error("Falha no upload", {
+        description: getApiErrorMessage(error, "Verifique formato (JPG/PNG/WEBP) e tamanho máximo de 5MB."),
+      });
     } finally {
       setUploading(false);
     }

@@ -11,6 +11,7 @@ import { Navbar } from "@/components/Navbar";
 import { ImageUploader } from "@/components/features/ImageUploader";
 import { itemService } from "@/services/itemService";
 import { useAuth } from "@/contexts/AuthContext";
+import { getApiErrorMessage } from "@/lib/api-error";
 import { Category, Location, Status, Item, categoryLabels, locationLabels } from "@/types";
 
 export function EditItemPage() {
@@ -45,7 +46,12 @@ export function EditItemPage() {
         setLostDate(item.lostDate.slice(0, 10));
         setImages([...item.images].sort((a, b) => a.position - b.position).map((image) => image.url));
       })
-      .catch(() => navigate("/"))
+      .catch((error) => {
+        toast.error("Erro ao carregar item", {
+          description: getApiErrorMessage(error, "Não foi possível carregar a publicação."),
+        });
+        navigate("/");
+      })
       .finally(() => setLoading(false));
   }, [id, user, navigate]);
 
@@ -74,8 +80,10 @@ export function EditItemPage() {
       });
       toast.success("Item atualizado!", { description: "As alterações foram salvas." });
       navigate(`/items/${id}`);
-    } catch {
-      toast.error("Erro ao salvar", { description: "Tente novamente mais tarde" });
+    } catch (error) {
+      toast.error("Erro ao salvar", {
+        description: getApiErrorMessage(error, "Tente novamente mais tarde"),
+      });
     } finally {
       setSaving(false);
     }

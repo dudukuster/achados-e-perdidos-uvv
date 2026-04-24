@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { commentService } from "@/services/commentService";
 import { useAuth } from "@/contexts/AuthContext";
+import { getApiErrorMessage } from "@/lib/api-error";
 import { Comment } from "@/types";
 
 interface Props {
@@ -20,7 +21,14 @@ export function CommentSection({ itemId }: Props) {
   const [editText, setEditText] = useState("");
 
   useEffect(() => {
-    commentService.getByItem(itemId).then(setComments).catch(() => {});
+    commentService
+      .getByItem(itemId)
+      .then(setComments)
+      .catch((error) => {
+        toast.error("Erro ao carregar comentários", {
+          description: getApiErrorMessage(error, "Não foi possível carregar os comentários."),
+        });
+      });
   }, [itemId]);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -31,8 +39,10 @@ export function CommentSection({ itemId }: Props) {
       const comment = await commentService.create(itemId, newText.trim());
       setComments((prev) => [...prev, comment]);
       setNewText("");
-    } catch {
-      toast.error("Erro ao comentar", { description: "Tente novamente" });
+    } catch (error) {
+      toast.error("Erro ao comentar", {
+        description: getApiErrorMessage(error, "Tente novamente"),
+      });
     } finally {
       setSubmitting(false);
     }
@@ -45,8 +55,10 @@ export function CommentSection({ itemId }: Props) {
       setComments((prev) => prev.map((c) => (c.id === commentId ? updated : c)));
       setEditingId(null);
       toast.success("Comentário atualizado");
-    } catch {
-      toast.error("Erro ao editar comentário");
+    } catch (error) {
+      toast.error("Erro ao editar comentário", {
+        description: getApiErrorMessage(error, "Tente novamente."),
+      });
     }
   }
 
@@ -55,8 +67,10 @@ export function CommentSection({ itemId }: Props) {
       await commentService.delete(commentId);
       setComments((prev) => prev.filter((c) => c.id !== commentId));
       toast.success("Comentário removido");
-    } catch {
-      toast.error("Erro ao apagar comentário");
+    } catch (error) {
+      toast.error("Erro ao apagar comentário", {
+        description: getApiErrorMessage(error, "Tente novamente."),
+      });
     }
   }
 

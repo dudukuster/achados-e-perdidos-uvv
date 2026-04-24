@@ -3,6 +3,7 @@ import { Link } from "react-router";
 import { toast } from "sonner";
 import { Mail, ArrowLeft, Send, CheckCircle2 } from "lucide-react";
 import { authService } from "@/services/authService";
+import { getApiErrorMessage } from "@/lib/api-error";
 
 export function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
@@ -20,8 +21,10 @@ export function ForgotPasswordPage() {
       await authService.recoverPassword(email);
       setSubmitted(true);
       toast.success("E-mail enviado!", { description: "Verifique sua caixa de entrada para redefinir a senha." });
-    } catch {
-      toast.error("Erro ao enviar e-mail", { description: "Tente novamente mais tarde" });
+    } catch (error) {
+      toast.error("Erro ao enviar e-mail", {
+        description: getApiErrorMessage(error, "Tente novamente mais tarde"),
+      });
     } finally {
       setLoading(false);
     }

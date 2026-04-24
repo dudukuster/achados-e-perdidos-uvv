@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Navbar } from "@/components/Navbar";
 import { ImageUploader } from "@/components/features/ImageUploader";
 import { itemService } from "@/services/itemService";
+import { getApiErrorMessage } from "@/lib/api-error";
 import { Category, Location, categoryLabels, locationLabels } from "@/types";
 
 export function CreateItemPage() {
@@ -46,8 +47,10 @@ export function CreateItemPage() {
       });
       toast.success("Publicação criada!", { description: "Seu item foi publicado com sucesso." });
       navigate("/");
-    } catch {
-      toast.error("Erro ao publicar", { description: "Tente novamente mais tarde" });
+    } catch (error) {
+      toast.error("Erro ao publicar", {
+        description: getApiErrorMessage(error, "Tente novamente mais tarde"),
+      });
     } finally {
       setLoading(false);
     }

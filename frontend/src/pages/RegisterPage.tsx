@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router";
 import { toast } from "sonner";
 import { Mail, Lock, User, ArrowRight, CheckCircle2 } from "lucide-react";
 import { authService } from "@/services/authService";
+import { getApiErrorMessage } from "@/lib/api-error";
 
 export function RegisterPage() {
   const [name, setName] = useState("");
@@ -26,8 +27,10 @@ export function RegisterPage() {
       await authService.register({ name, email, password });
       toast.success("Conta criada!", { description: "Faça login para continuar." });
       navigate("/login");
-    } catch {
-      toast.error("Erro ao criar conta", { description: "Verifique os dados e tente novamente" });
+    } catch (error) {
+      toast.error("Erro ao criar conta", {
+        description: getApiErrorMessage(error, "Verifique os dados e tente novamente"),
+      });
     } finally {
       setLoading(false);
     }
