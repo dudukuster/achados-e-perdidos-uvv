@@ -9,6 +9,12 @@ import { CreateItemPage } from '@/pages/CreateItemPage';
 import { ItemDetailPage } from '@/pages/ItemDetailPage';
 import { MyItemsPage } from '@/pages/MyItemsPage';
 import { EditItemPage } from '@/pages/EditItemPage';
+import { AdminDashboard } from '@/pages/AdminDashboard';
+import { AdminCategoriesPage } from '@/pages/AdminCategoriesPage';
+import { AdminLocationsPage } from '@/pages/AdminLocationsPage';
+import { AdminUsersPage } from '@/pages/AdminUsersPage';
+import { AdminPostsPage } from '@/pages/AdminPostsPage';
+import { AdminRoute } from '@/components/AdminRoute';
 import { NotFoundPage } from '@/pages/NotFoundPage';
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
@@ -33,6 +39,11 @@ export function AppRoutes() {
       <Route path="/items/:id" element={<PrivateRoute><ItemDetailPage /></PrivateRoute>} />
       <Route path="/items/:id/edit" element={<PrivateRoute><EditItemPage /></PrivateRoute>} />
       <Route path="/my-items" element={<PrivateRoute><MyItemsPage /></PrivateRoute>} />
+      <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
+      <Route path="/admin/categories" element={<AdminRoute><AdminCategoriesPage /></AdminRoute>} />
+      <Route path="/admin/locations" element={<AdminRoute><AdminLocationsPage /></AdminRoute>} />
+      <Route path="/admin/users" element={<AdminRoute><AdminUsersPage /></AdminRoute>} />
+      <Route path="/admin/posts" element={<AdminRoute><AdminPostsPage /></AdminRoute>} />
       <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );

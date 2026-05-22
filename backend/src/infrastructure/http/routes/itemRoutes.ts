@@ -19,6 +19,7 @@ export default function itemRoutes(controller: ItemController): Router {
   router.get('/my-items', (req, res, next) => controller.getMyItems(req, res, next));
   router.get('/:id', (req, res, next) => controller.getById(req, res, next));
   router.patch('/:id', validate(updateItemSchema), (req, res, next) => controller.update(req, res, next));
+  router.delete('/:id', (req, res, next) => controller.delete(req, res, next));
 
   return router;
 }

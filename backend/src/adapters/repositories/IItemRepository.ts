@@ -6,4 +6,5 @@ export interface IItemRepository {
   findAll(filters: SearchFilters): Promise<Item[]>;
   findByUserId(userId: string): Promise<Item[]>;
   update(id: string, data: UpdateItemData): Promise<Item>;
+  delete(id: string): Promise<void>;
 }

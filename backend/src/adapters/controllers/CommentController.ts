@@ -44,6 +44,7 @@ export class CommentController {
       const comment = await useCase.execute({
         commentId: req.params['id'] as string,
         requestingUserId: req.userId!,
+        requestingUserRole: req.userRole,
         text: req.body.text,
       });
       res.status(200).json(success(comment));
@@ -58,6 +59,7 @@ export class CommentController {
       await useCase.execute({
         commentId: req.params['id'] as string,
         requestingUserId: req.userId!,
+        requestingUserRole: req.userRole,
       });
       res.status(204).send();
     } catch (err) {

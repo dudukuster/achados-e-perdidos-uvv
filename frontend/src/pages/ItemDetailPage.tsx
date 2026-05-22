@@ -1,59 +1,59 @@
-import { useEffect, useMemo, useState } from "react";
-import { useParams, useNavigate } from "react-router";
-import { toast } from "sonner";
-import { ArrowLeft, Calendar, ChevronLeft, ChevronRight, Edit3, ImageIcon, MapPin, Tag, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Navbar } from "@/components/Navbar";
-import { CommentSection } from "@/components/features/CommentSection";
-import { itemService } from "@/services/itemService";
-import { useAuth } from "@/contexts/AuthContext";
-import { getApiErrorMessage } from "@/lib/api-error";
-import { Item, Status, categoryLabels, locationLabels } from "@/types";
+import { useEffect, useMemo, useState } from "react"
+import { useParams, useNavigate } from "react-router"
+import { toast } from "sonner"
+import { ArrowLeft, Calendar, ChevronLeft, ChevronRight, Edit3, ImageIcon, MapPin, Tag, X } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Navbar } from "@/components/Navbar"
+import { CommentSection } from "@/components/features/CommentSection"
+import { itemService } from "@/services/itemService"
+import { useAuth } from "@/contexts/AuthContext"
+import { getApiErrorMessage } from "@/lib/api-error"
+import { Item, Status } from "@/types"
 
 export function ItemDetailPage() {
-  const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
-  const { user } = useAuth();
-  const [item, setItem] = useState<Item | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
-  const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+  const { id } = useParams<{ id: string }>()
+  const navigate = useNavigate()
+  const { user } = useAuth()
+  const [item, setItem] = useState<Item | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0)
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false)
 
   useEffect(() => {
-    if (!id) return;
+    if (!id) return
     itemService
       .getById(id)
       .then((data) => {
-        setItem(data);
-        setSelectedImageIndex(0);
+        setItem(data)
+        setSelectedImageIndex(0)
       })
       .catch((error) => {
         toast.error("Erro ao carregar item", {
           description: getApiErrorMessage(error, "Não foi possível abrir esta publicação."),
-        });
-        navigate("/");
+        })
+        navigate("/")
       })
-      .finally(() => setLoading(false));
-  }, [id, navigate]);
+      .finally(() => setLoading(false))
+  }, [id, navigate])
 
   const orderedImages = useMemo(
     () => (item?.images ? [...item.images].sort((a, b) => a.position - b.position) : []),
     [item],
-  );
+  )
 
-  const selectedImage = orderedImages[selectedImageIndex]?.url ?? null;
-  const hasMultipleImages = orderedImages.length > 1;
+  const selectedImage = orderedImages[selectedImageIndex]?.url ?? null
+  const hasMultipleImages = orderedImages.length > 1
 
   const goToPreviousImage = () => {
-    if (!hasMultipleImages) return;
-    setSelectedImageIndex((prev) => (prev === 0 ? orderedImages.length - 1 : prev - 1));
-  };
+    if (!hasMultipleImages) return
+    setSelectedImageIndex((prev) => (prev === 0 ? orderedImages.length - 1 : prev - 1))
+  }
 
   const goToNextImage = () => {
-    if (!hasMultipleImages) return;
-    setSelectedImageIndex((prev) => (prev === orderedImages.length - 1 ? 0 : prev + 1));
-  };
+    if (!hasMultipleImages) return
+    setSelectedImageIndex((prev) => (prev === orderedImages.length - 1 ? 0 : prev + 1))
+  }
 
   if (loading) {
     return (
@@ -63,13 +63,13 @@ export function ItemDetailPage() {
           <div className="h-10 w-10 animate-spin rounded-full border-4 border-[#061f40] border-t-transparent" />
         </div>
       </div>
-    );
+    )
   }
 
-  if (!item) return null;
+  if (!item) return null
 
-  const isOwner = user?.id === item.userId;
-  const isLost = item.status === Status.PERDIDO;
+  const isOwner = user?.id === item.userId
+  const isLost = item.status === Status.PERDIDO
 
   return (
     <div className="campus-page">
@@ -94,7 +94,7 @@ export function ItemDetailPage() {
                     alt={item.title}
                     className="h-full w-full cursor-zoom-in object-contain p-4"
                     onError={(e) => {
-                      (e.target as HTMLImageElement).src = "https://placehold.co/900x650?text=Sem+Foto";
+                      (e.target as HTMLImageElement).src = "https://placehold.co/900x650?text=Sem+Foto"
                     }}
                   />
                 </button>
@@ -134,7 +134,7 @@ export function ItemDetailPage() {
           <aside className="campus-panel p-6 md:p-7">
             <div className="mb-5 flex flex-wrap items-center gap-2">
               <Badge className="rounded-[8px] border-[#061f40]/10 bg-white px-3 py-1 text-xs font-bold text-[#061f40]">
-                {categoryLabels[item.category]}
+                {item.category.name}
               </Badge>
               <Badge className={`rounded-[8px] px-3 py-1 text-xs font-bold text-white ${isLost ? "bg-[#f4634c]" : "bg-[#197e66]"}`}>
                 {isLost ? "Perdido" : "Encontrado"}
@@ -151,14 +151,14 @@ export function ItemDetailPage() {
                 <Tag className="h-5 w-5 text-[#f4634c]" />
                 <div>
                   <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#66758a]">Categoria</p>
-                  <p className="text-sm font-bold text-[#061f40]">{categoryLabels[item.category]}</p>
+                  <p className="text-sm font-bold text-[#061f40]">{item.category.name}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3 rounded-[8px] border border-[#061f40]/10 bg-white/70 p-4">
                 <MapPin className="h-5 w-5 text-[#197e66]" />
                 <div>
                   <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#66758a]">Local</p>
-                  <p className="text-sm font-bold text-[#061f40]">{locationLabels[item.location]}</p>
+                  <p className="text-sm font-bold text-[#061f40]">{item.location.name}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3 rounded-[8px] border border-[#061f40]/10 bg-white/70 p-4">
@@ -229,12 +229,12 @@ export function ItemDetailPage() {
               alt={item.title}
               className="h-full w-full object-contain p-5"
               onError={(e) => {
-                (e.target as HTMLImageElement).src = "https://placehold.co/1200x800?text=Sem+Foto";
+                (e.target as HTMLImageElement).src = "https://placehold.co/1200x800?text=Sem+Foto"
               }}
             />
           </div>
         </div>
       )}
     </div>
-  );
+  )
 }

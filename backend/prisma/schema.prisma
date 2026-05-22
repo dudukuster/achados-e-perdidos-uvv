@@ -1,9 +1,5 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma_v2"
+  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -11,20 +7,9 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum Category {
-  ELETRONICOS
-  DOCUMENTOS
-  ACESSORIOS
-  MATERIAIS_ESCOLARES
-  OUTROS
-}
-
-enum Location {
-  BIBLIOTECA
-  LABORATORIOS
-  CANTINA
-  SALAS_DE_AULA
-  AREAS_COMUNS
+enum Role {
+  USER
+  ADMIN
 }
 
 enum Status {
@@ -37,6 +22,7 @@ model User {
   name        String
   email       String               @unique
   password    String
+  role        Role                 @default(USER)
   items       Item[]
   comments    Comment[]
   resetTokens PasswordResetToken[]
@@ -44,23 +30,41 @@ model User {
   updatedAt   DateTime             @updatedAt
 }
 
+model Category {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  slug      String   @unique
+  items     Item[]
+  createdAt DateTime @default(now())
+}
+
+model Location {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  slug      String   @unique
+  items     Item[]
+  createdAt DateTime @default(now())
+}
+
 model Item {
   id          String      @id @default(uuid())
   title       String
   description String
-  category    Category
-  location    Location
+  categoryId  String      @map("category")
+  locationId  String      @map("location")
   lostDate    DateTime
   status      Status      @default(PERDIDO)
   user        User        @relation(fields: [userId], references: [id])
   userId      String
+  category    Category    @relation(fields: [categoryId], references: [id])
+  location    Location    @relation(fields: [locationId], references: [id])
   comments    Comment[]
   images      ItemImage[]
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
 
-  @@index([category])
-  @@index([location])
+  @@index([categoryId])
+  @@index([locationId])
   @@index([status])
   @@index([userId])
 }
@@ -106,4 +110,3 @@ model PasswordResetToken {
   @@index([expiresAt])
   @@index([usedAt])
 }
-

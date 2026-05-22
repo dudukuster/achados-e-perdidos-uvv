@@ -1,19 +1,21 @@
-import { CircleDot, Filter, MapPin, Tag } from "lucide-react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Category, Location, Status, categoryLabels, locationLabels } from "@/types";
+import { CircleDot, Filter, MapPin, Tag } from "lucide-react"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Status } from "@/types"
 
 interface FilterBarProps {
-  category: Category | "all";
-  location: Location | "all";
-  status: Status | "all";
-  onCategoryChange: (v: Category | "all") => void;
-  onLocationChange: (v: Location | "all") => void;
-  onStatusChange: (v: Status | "all") => void;
+  category: string
+  location: string
+  status: Status | "all"
+  onCategoryChange: (v: string) => void
+  onLocationChange: (v: string) => void
+  onStatusChange: (v: Status | "all") => void
+  categories?: { id: string; name: string }[]
+  locations?: { id: string; name: string }[]
 }
 
-export function FilterBar({ category, location, status, onCategoryChange, onLocationChange, onStatusChange }: FilterBarProps) {
+export function FilterBar({ category, location, status, onCategoryChange, onLocationChange, onStatusChange, categories, locations }: FilterBarProps) {
   const selectClass =
-    "h-11 rounded-[8px] border-[#061f40]/10 bg-white/80 text-[#061f40] shadow-sm focus:ring-[#061f40]/20 focus:ring-offset-0";
+    "h-11 rounded-[8px] border-[#061f40]/10 bg-white/80 text-[#061f40] shadow-sm focus:ring-[#061f40]/20 focus:ring-offset-0"
 
   return (
     <div className="campus-soft-panel flex flex-col gap-3 p-3 sm:flex-row sm:items-center">
@@ -25,14 +27,14 @@ export function FilterBar({ category, location, status, onCategoryChange, onLoca
       <div className="grid flex-1 gap-3 sm:grid-cols-3">
         <div className="relative">
           <Tag className="pointer-events-none absolute left-3 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-[#66758a]" />
-          <Select value={category} onValueChange={(v) => onCategoryChange(v as Category | "all")}>
+          <Select value={category} onValueChange={onCategoryChange}>
             <SelectTrigger className={`${selectClass} pl-9`}>
               <SelectValue placeholder="Categoria" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todas categorias</SelectItem>
-              {Object.entries(categoryLabels).map(([key, label]) => (
-                <SelectItem key={key} value={key}>{label}</SelectItem>
+              {(categories ?? []).map((cat) => (
+                <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -40,14 +42,14 @@ export function FilterBar({ category, location, status, onCategoryChange, onLoca
 
         <div className="relative">
           <MapPin className="pointer-events-none absolute left-3 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-[#66758a]" />
-          <Select value={location} onValueChange={(v) => onLocationChange(v as Location | "all")}>
+          <Select value={location} onValueChange={onLocationChange}>
             <SelectTrigger className={`${selectClass} pl-9`}>
               <SelectValue placeholder="Local" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todos locais</SelectItem>
-              {Object.entries(locationLabels).map(([key, label]) => (
-                <SelectItem key={key} value={key}>{label}</SelectItem>
+              {(locations ?? []).map((loc) => (
+                <SelectItem key={loc.id} value={loc.id}>{loc.name}</SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -55,7 +57,7 @@ export function FilterBar({ category, location, status, onCategoryChange, onLoca
 
         <div className="relative">
           <CircleDot className="pointer-events-none absolute left-3 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-[#66758a]" />
-          <Select value={status} onValueChange={(v) => onStatusChange(v as Status | "all")}>
+          <Select value={status} onValueChange={onStatusChange}>
             <SelectTrigger className={`${selectClass} pl-9`}>
               <SelectValue placeholder="Status" />
             </SelectTrigger>
@@ -68,5 +70,5 @@ export function FilterBar({ category, location, status, onCategoryChange, onLoca
         </div>
       </div>
     </div>
-  );
+  )
 }

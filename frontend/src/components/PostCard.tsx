@@ -1,30 +1,30 @@
-import { Link } from "react-router";
-import { ArrowRight, Calendar, ImageIcon, MapPin } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { Item, Status, categoryLabels, locationLabels } from "@/types";
+import { Link } from "react-router"
+import { ArrowRight, Calendar, ImageIcon, MapPin } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
+import { Item, Status } from "@/types"
 
 interface PostCardProps {
-  item: Item;
+  item: Item
 }
 
 function getPrimaryImageUrl(item: Item): string | null {
-  if (!item.images || item.images.length === 0) return null;
-  const ordered = [...item.images].sort((a, b) => a.position - b.position);
-  return ordered[0]?.url ?? null;
+  if (!item.images || item.images.length === 0) return null
+  const ordered = [...item.images].sort((a, b) => a.position - b.position)
+  return ordered[0]?.url ?? null
 }
 
 function getStatusLabel(status: Status) {
-  return status === Status.PERDIDO ? "Perdido" : "Encontrado";
+  return status === Status.PERDIDO ? "Perdido" : "Encontrado"
 }
 
 function getStatusClass(status: Status) {
   return status === Status.PERDIDO
     ? "border-[#f4634c]/20 bg-[#f4634c] text-white"
-    : "border-[#197e66]/20 bg-[#197e66] text-white";
+    : "border-[#197e66]/20 bg-[#197e66] text-white"
 }
 
 export function PostCard({ item }: PostCardProps) {
-  const primaryImage = getPrimaryImageUrl(item);
+  const primaryImage = getPrimaryImageUrl(item)
 
   return (
     <Link to={`/items/${item.id}`} aria-label={`Abrir item ${item.title}`} className="group block h-full">
@@ -51,7 +51,7 @@ export function PostCard({ item }: PostCardProps) {
                 {getStatusLabel(item.status)}
               </Badge>
               <Badge className="rounded-[8px] border-[#061f40]/10 bg-[#f5f1ea] px-3 py-1 text-xs font-bold text-[#061f40]">
-                {categoryLabels[item.category]}
+                {item.category.name}
               </Badge>
             </div>
 
@@ -71,7 +71,7 @@ export function PostCard({ item }: PostCardProps) {
           <div className="mt-auto flex flex-wrap items-center gap-x-4 gap-y-2 pt-4 text-xs font-bold text-[#66758a]">
             <span className="flex items-center gap-1.5">
               <MapPin className="h-3.5 w-3.5 text-[#f4634c]" />
-              {locationLabels[item.location]}
+              {item.location.name}
             </span>
             <span className="flex items-center gap-1.5">
               <Calendar className="h-3.5 w-3.5 text-[#197e66]" />
@@ -81,5 +81,5 @@ export function PostCard({ item }: PostCardProps) {
         </div>
       </article>
     </Link>
-  );
+  )
 }

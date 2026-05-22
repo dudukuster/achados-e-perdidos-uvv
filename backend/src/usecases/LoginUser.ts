@@ -10,7 +10,7 @@ interface LoginUserInput {
 
 interface LoginUserOutput {
   token: string;
-  user: { id: string; name: string; email: string };
+  user: { id: string; name: string; email: string; role: 'USER' | 'ADMIN' };
 }
 
 export class LoginUser {
@@ -30,11 +30,16 @@ export class LoginUser {
     const secret = process.env['JWT_SECRET'];
     if (!secret) throw new Error('JWT_SECRET não configurado.');
 
-    const token = jwt.sign({ userId: user.id }, secret, { expiresIn: '7d' });
+    const token = jwt.sign({ userId: user.id, userRole: user.role }, secret, { expiresIn: '7d' });
 
     return {
       token,
-      user: { id: user.id, name: user.name, email: user.email },
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
     };
   }
 }

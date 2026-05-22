@@ -6,22 +6,6 @@ export interface ItemImage {
   createdAt: Date;
 }
 
-export enum Category {
-  ELETRONICOS = 'ELETRONICOS',
-  DOCUMENTOS = 'DOCUMENTOS',
-  ACESSORIOS = 'ACESSORIOS',
-  MATERIAIS_ESCOLARES = 'MATERIAIS_ESCOLARES',
-  OUTROS = 'OUTROS',
-}
-
-export enum Location {
-  BIBLIOTECA = 'BIBLIOTECA',
-  LABORATORIOS = 'LABORATORIOS',
-  CANTINA = 'CANTINA',
-  SALAS_DE_AULA = 'SALAS_DE_AULA',
-  AREAS_COMUNS = 'AREAS_COMUNS',
-}
-
 export enum Status {
   PERDIDO = 'PERDIDO',
   ENCONTRADO = 'ENCONTRADO',
@@ -31,8 +15,8 @@ export interface Item {
   id: string;
   title: string;
   description: string;
-  category: Category;
-  location: Location;
+  categoryId: string;
+  locationId: string;
   lostDate: Date;
   status: Status;
   userId: string;
@@ -44,8 +28,8 @@ export interface Item {
 export interface CreateItemData {
   title: string;
   description: string;
-  category: Category;
-  location: Location;
+  categoryId: string;
+  locationId: string;
   lostDate: Date;
   userId: string;
   images: string[];
@@ -54,16 +38,16 @@ export interface CreateItemData {
 export type UpdateItemData = Partial<{
   title: string;
   description: string;
-  category: Category;
-  location: Location;
+  categoryId: string;
+  locationId: string;
   lostDate: Date;
   status: Status;
   images: string[];
 }>;
 
 export interface SearchFilters {
-  category?: Category;
-  location?: Location;
+  categoryId?: string;
+  locationId?: string;
   status?: Status;
   search?: string;
 }

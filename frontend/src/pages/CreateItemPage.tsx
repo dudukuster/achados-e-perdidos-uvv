@@ -1,63 +1,76 @@
-import { useState } from "react";
-import { useNavigate } from "react-router";
-import { toast } from "sonner";
-import { ArrowLeft, Camera, CheckCircle2, ClipboardList } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Navbar } from "@/components/Navbar";
-import { ImageUploader } from "@/components/features/ImageUploader";
-import { itemService } from "@/services/itemService";
-import { getApiErrorMessage } from "@/lib/api-error";
-import { Category, Location, categoryLabels, locationLabels } from "@/types";
+import { useEffect, useState } from "react"
+import { useNavigate } from "react-router"
+import { toast } from "sonner"
+import { ArrowLeft, Camera, CheckCircle2, ClipboardList } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Navbar } from "@/components/Navbar"
+import { ImageUploader } from "@/components/features/ImageUploader"
+import { itemService } from "@/services/itemService"
+import { categoryService } from "@/services/categoryService"
+import { locationService } from "@/services/locationService"
+import { getApiErrorMessage } from "@/lib/api-error"
+import { type Category, type Location } from "@/types"
 
 export function CreateItemPage() {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [category, setCategory] = useState<Category | "">("");
-  const [location, setLocation] = useState<Location | "">("");
-  const [lostDate, setLostDate] = useState("");
-  const [images, setImages] = useState<string[]>([]);
-  const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
+  const [title, setTitle] = useState("")
+  const [description, setDescription] = useState("")
+  const [category, setCategory] = useState("")
+  const [location, setLocation] = useState("")
+  const [lostDate, setLostDate] = useState("")
+  const [images, setImages] = useState<string[]>([])
+  const [loading, setLoading] = useState(false)
+  const [categories, setCategories] = useState<Category[]>([])
+  const [locations, setLocations] = useState<Location[]>([])
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    Promise.all([categoryService.list(), locationService.list()]).then(
+      ([cats, locs]) => {
+        setCategories(cats)
+        setLocations(locs)
+      },
+    )
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
     if (!category || !location) {
-      toast.error("Campos obrigatórios", { description: "Selecione categoria e local" });
-      return;
+      toast.error("Campos obrigatórios", { description: "Selecione categoria e local" })
+      return
     }
 
     if (images.length === 0) {
-      toast.error("Imagem obrigatória", { description: "Envie pelo menos 1 imagem." });
-      return;
+      toast.error("Imagem obrigatória", { description: "Envie pelo menos 1 imagem." })
+      return
     }
 
-    setLoading(true);
+    setLoading(true)
     try {
       await itemService.create({
         title,
         description,
-        category,
-        location,
+        categoryId: category,
+        locationId: location,
         lostDate: new Date(lostDate).toISOString(),
         images,
-      });
-      toast.success("Publicação criada!", { description: "Seu item foi publicado com sucesso." });
-      navigate("/");
+      })
+      toast.success("Publicação criada!", { description: "Seu item foi publicado com sucesso." })
+      navigate("/")
     } catch (error) {
       toast.error("Erro ao publicar", {
         description: getApiErrorMessage(error, "Tente novamente mais tarde"),
-      });
+      })
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const fieldClass =
-    "campus-input rounded-[8px] focus-visible:ring-[#061f40]/20 focus-visible:ring-offset-0";
+    "campus-input rounded-[8px] focus-visible:ring-[#061f40]/20 focus-visible:ring-offset-0"
 
   return (
     <div className="campus-page">
@@ -120,22 +133,22 @@ export function CreateItemPage() {
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
                   <Label className="font-bold text-[#061f40]">Categoria</Label>
-                  <Select value={category} onValueChange={(v) => setCategory(v as Category)}>
+                  <Select value={category} onValueChange={setCategory}>
                     <SelectTrigger className={fieldClass}><SelectValue placeholder="Selecione" /></SelectTrigger>
                     <SelectContent>
-                      {Object.entries(categoryLabels).map(([key, label]) => (
-                        <SelectItem key={key} value={key}>{label}</SelectItem>
+                      {categories.map((cat) => (
+                        <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-2">
                   <Label className="font-bold text-[#061f40]">Local</Label>
-                  <Select value={location} onValueChange={(v) => setLocation(v as Location)}>
+                  <Select value={location} onValueChange={setLocation}>
                     <SelectTrigger className={fieldClass}><SelectValue placeholder="Selecione" /></SelectTrigger>
                     <SelectContent>
-                      {Object.entries(locationLabels).map(([key, label]) => (
-                        <SelectItem key={key} value={key}>{label}</SelectItem>
+                      {locations.map((loc) => (
+                        <SelectItem key={loc.id} value={loc.id}>{loc.name}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -162,5 +175,5 @@ export function CreateItemPage() {
         </div>
       </main>
     </div>
-  );
+  )
 }

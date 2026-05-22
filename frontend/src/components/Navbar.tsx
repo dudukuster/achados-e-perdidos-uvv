@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router";
-import { FileText, LogOut, Plus, Search, UserRound } from "lucide-react";
+import { FileText, LogOut, Plus, Search, Shield, UserRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -16,7 +16,7 @@ interface NavbarProps {
 }
 
 export function Navbar({ onSearch, searchValue }: NavbarProps) {
-  const { user, logout } = useAuth();
+  const { user, logout, isAdmin } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -82,6 +82,14 @@ export function Navbar({ onSearch, searchValue }: NavbarProps) {
                 <Plus className="mr-2 h-4 w-4" />
                 Nova publicação
               </DropdownMenuItem>
+              {isAdmin && (
+                <>
+                  <DropdownMenuItem onClick={() => navigate("/admin")}>
+                    <Shield className="mr-2 h-4 w-4" />
+                    Painel Admin
+                  </DropdownMenuItem>
+                </>
+              )}
               <DropdownMenuItem onClick={handleLogout} className="text-destructive">
                 <LogOut className="mr-2 h-4 w-4" />
                 Sair

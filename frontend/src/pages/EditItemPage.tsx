@@ -1,93 +1,100 @@
-import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router";
-import { toast } from "sonner";
-import { ArrowLeft, CheckCircle2, Edit3, Images } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Navbar } from "@/components/Navbar";
-import { ImageUploader } from "@/components/features/ImageUploader";
-import { itemService } from "@/services/itemService";
-import { useAuth } from "@/contexts/AuthContext";
-import { getApiErrorMessage } from "@/lib/api-error";
-import { Category, Location, Status, Item, categoryLabels, locationLabels } from "@/types";
+import { useEffect, useState } from "react"
+import { useParams, useNavigate } from "react-router"
+import { toast } from "sonner"
+import { ArrowLeft, CheckCircle2, Edit3, Images } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Navbar } from "@/components/Navbar"
+import { ImageUploader } from "@/components/features/ImageUploader"
+import { itemService } from "@/services/itemService"
+import { categoryService } from "@/services/categoryService"
+import { locationService } from "@/services/locationService"
+import { useAuth } from "@/contexts/AuthContext"
+import { getApiErrorMessage } from "@/lib/api-error"
+import { Status, type Category, type Location } from "@/types"
 
 export function EditItemPage() {
-  const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
-  const { user } = useAuth();
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
+  const { id } = useParams<{ id: string }>()
+  const navigate = useNavigate()
+  const { user } = useAuth()
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
 
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [category, setCategory] = useState<Category | "">("");
-  const [location, setLocation] = useState<Location | "">("");
-  const [status, setStatus] = useState<Status>(Status.PERDIDO);
-  const [lostDate, setLostDate] = useState("");
-  const [images, setImages] = useState<string[]>([]);
+  const [title, setTitle] = useState("")
+  const [description, setDescription] = useState("")
+  const [category, setCategory] = useState("")
+  const [location, setLocation] = useState("")
+  const [status, setStatus] = useState<Status>(Status.PERDIDO)
+  const [lostDate, setLostDate] = useState("")
+  const [images, setImages] = useState<string[]>([])
+  const [categories, setCategories] = useState<Category[]>([])
+  const [locations, setLocations] = useState<Location[]>([])
 
   useEffect(() => {
-    if (!id) return;
-    itemService
-      .getById(id)
-      .then((item: Item) => {
+    if (!id) return
+    Promise.all([itemService.getById(id), categoryService.list(), locationService.list()])
+      .then(([item, cats, locs]) => {
         if (item.userId !== user?.id) {
-          navigate(`/items/${id}`);
-          return;
+          navigate(`/items/${id}`)
+          return
         }
-        setTitle(item.title);
-        setDescription(item.description);
-        setCategory(item.category);
-        setLocation(item.location);
-        setStatus(item.status);
-        setLostDate(item.lostDate.slice(0, 10));
-        setImages([...item.images].sort((a, b) => a.position - b.position).map((image) => image.url));
+        setCategories(cats)
+        setLocations(locs)
+        setTitle(item.title)
+        setDescription(item.description)
+        const cat = cats.find((c: Category) => c.slug === item.category.slug)
+        const loc = locs.find((l: Location) => l.slug === item.location.slug)
+        setCategory(cat?.id ?? "")
+        setLocation(loc?.id ?? "")
+        setStatus(item.status)
+        setLostDate(item.lostDate.slice(0, 10))
+        setImages([...item.images].sort((a, b) => a.position - b.position).map((image) => image.url))
       })
       .catch((error) => {
         toast.error("Erro ao carregar item", {
           description: getApiErrorMessage(error, "Não foi possível carregar a publicação."),
-        });
-        navigate("/");
+        })
+        navigate("/")
       })
-      .finally(() => setLoading(false));
-  }, [id, user, navigate]);
+      .finally(() => setLoading(false))
+  }, [id, user, navigate])
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
     if (!category || !location) {
-      toast.error("Campos obrigatórios", { description: "Selecione categoria e local" });
-      return;
+      toast.error("Campos obrigatórios", { description: "Selecione categoria e local" })
+      return
     }
 
     if (images.length === 0) {
-      toast.error("Imagem obrigatória", { description: "Mantenha pelo menos 1 imagem no item." });
-      return;
+      toast.error("Imagem obrigatória", { description: "Mantenha pelo menos 1 imagem no item." })
+      return
     }
 
-    setSaving(true);
+    setSaving(true)
     try {
       await itemService.update(id!, {
         title,
         description,
-        category: category as Category,
-        location: location as Location,
+        categoryId: category,
+        locationId: location,
         status,
         lostDate: new Date(lostDate).toISOString(),
         images,
-      });
-      toast.success("Item atualizado!", { description: "As alterações foram salvas." });
-      navigate(`/items/${id}`);
+      })
+      toast.success("Item atualizado!", { description: "As alterações foram salvas." })
+      navigate(`/items/${id}`)
     } catch (error) {
       toast.error("Erro ao salvar", {
         description: getApiErrorMessage(error, "Tente novamente mais tarde"),
-      });
+      })
     } finally {
-      setSaving(false);
+      setSaving(false)
     }
-  };
+  }
 
   if (loading) {
     return (
@@ -97,11 +104,11 @@ export function EditItemPage() {
           <div className="h-10 w-10 animate-spin rounded-full border-4 border-[#061f40] border-t-transparent" />
         </div>
       </div>
-    );
+    )
   }
 
   const fieldClass =
-    "campus-input rounded-[8px] focus-visible:ring-[#061f40]/20 focus-visible:ring-offset-0";
+    "campus-input rounded-[8px] focus-visible:ring-[#061f40]/20 focus-visible:ring-offset-0"
 
   return (
     <div className="campus-page">
@@ -164,24 +171,24 @@ export function EditItemPage() {
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
                   <Label className="font-bold text-[#061f40]">Categoria</Label>
-                  <Select value={category} onValueChange={(v) => setCategory(v as Category)}>
+                  <Select value={category} onValueChange={setCategory}>
                     <SelectTrigger className={fieldClass}><SelectValue placeholder="Selecione" /></SelectTrigger>
-                    <SelectContent>
-                      {Object.entries(categoryLabels).map(([key, label]) => (
-                        <SelectItem key={key} value={key}>{label}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label className="font-bold text-[#061f40]">Local</Label>
-                  <Select value={location} onValueChange={(v) => setLocation(v as Location)}>
-                    <SelectTrigger className={fieldClass}><SelectValue placeholder="Selecione" /></SelectTrigger>
-                    <SelectContent>
-                      {Object.entries(locationLabels).map(([key, label]) => (
-                        <SelectItem key={key} value={key}>{label}</SelectItem>
-                      ))}
-                    </SelectContent>
+                  <SelectContent>
+                    {categories.map((cat) => (
+                      <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label className="font-bold text-[#061f40]">Local</Label>
+                <Select value={location} onValueChange={setLocation}>
+                  <SelectTrigger className={fieldClass}><SelectValue placeholder="Selecione" /></SelectTrigger>
+                  <SelectContent>
+                    {locations.map((loc) => (
+                      <SelectItem key={loc.id} value={loc.id}>{loc.name}</SelectItem>
+                    ))}
+                  </SelectContent>
                   </Select>
                 </div>
               </div>
@@ -218,5 +225,5 @@ export function EditItemPage() {
         </div>
       </main>
     </div>
-  );
+  )
 }

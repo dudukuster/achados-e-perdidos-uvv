@@ -6,23 +6,36 @@ import { Navbar } from "@/components/Navbar";
 import { PostCard } from "@/components/PostCard";
 import { FilterBar } from "@/components/FilterBar";
 import { itemService } from "@/services/itemService";
-import { Item, Category, Location, Status } from "@/types";
+import { categoryService } from "@/services/categoryService";
+import { locationService } from "@/services/locationService";
+import { Item, Status, type Category, type Location } from "@/types";
 
 export function FeedPage() {
   const [items, setItems] = useState<Item[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [category, setCategory] = useState<Category | "all">("all");
-  const [location, setLocation] = useState<Location | "all">("all");
+  const [category, setCategory] = useState<string>("all");
+  const [location, setLocation] = useState<string>("all");
   const [status, setStatus] = useState<Status | "all">("all");
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [locations, setLocations] = useState<Location[]>([]);
+
+  useEffect(() => {
+    Promise.all([categoryService.list(), locationService.list()]).then(
+      ([cats, locs]) => {
+        setCategories(cats);
+        setLocations(locs);
+      },
+    );
+  }, []);
 
   const fetchItems = useCallback(async () => {
     setLoading(true);
     try {
       const filters = {
         ...(search && { search }),
-        ...(category !== "all" && { category }),
-        ...(location !== "all" && { location }),
+        ...(category !== "all" && { categoryId: category }),
+        ...(location !== "all" && { locationId: location }),
         ...(status !== "all" && { status }),
       };
       const data = await itemService.search(filters);
@@ -124,6 +137,8 @@ export function FeedPage() {
             onCategoryChange={setCategory}
             onLocationChange={setLocation}
             onStatusChange={setStatus}
+            categories={categories}
+            locations={locations}
           />
         </section>
 
