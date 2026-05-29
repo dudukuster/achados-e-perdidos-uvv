@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router";
-import { Search, LogOut, FileText } from "lucide-react";
+import { FileText, LogOut, Plus, Search, Shield, UserRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -16,7 +16,7 @@ interface NavbarProps {
 }
 
 export function Navbar({ onSearch, searchValue }: NavbarProps) {
-  const { user, logout } = useAuth();
+  const { user, logout, isAdmin } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -25,24 +25,25 @@ export function Navbar({ onSearch, searchValue }: NavbarProps) {
   };
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border bg-card/80 backdrop-blur-lg">
-      <div className="container mx-auto flex h-16 items-center justify-between gap-4 px-4">
-        <Link to="/" className="flex items-center gap-2 shrink-0">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
-            <Search className="h-4 w-4 text-primary-foreground" />
+    <header className="sticky top-0 z-50 border-b border-[#061f40]/10 bg-[#f7f3ec]/90 backdrop-blur-xl">
+      <div className="container mx-auto flex min-h-16 flex-wrap items-center justify-between gap-3 px-4 py-3 sm:flex-nowrap">
+        <Link to="/" className="flex shrink-0 items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-[8px] bg-[#061f40] shadow-[0_12px_28px_rgba(6,31,64,0.22)]">
+            <Search className="h-4 w-4 text-white" />
           </div>
-          <span className="font-heading text-lg font-bold text-foreground hidden sm:block">
-            UVV Achados
-          </span>
+          <div className="hidden leading-tight sm:block">
+            <span className="block font-heading text-base font-extrabold text-[#061f40]">UVV Achados</span>
+            <span className="block text-xs font-medium text-[#526174]">Achados e perdidos</span>
+          </div>
         </Link>
 
         {onSearch && (
-          <div className="flex-1 max-w-md">
+          <div className="order-3 w-full flex-1 sm:order-none sm:max-w-xl">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#66758a]" />
               <Input
-                placeholder="Buscar item..."
-                className="pl-10 bg-muted/50 border-0 focus-visible:ring-1 focus-visible:ring-primary"
+                placeholder="Buscar por item, categoria ou local..."
+                className="campus-input h-11 rounded-[8px] pl-10 shadow-sm focus-visible:ring-2 focus-visible:ring-[#061f40]/20 focus-visible:ring-offset-0"
                 value={searchValue}
                 onChange={(e) => onSearch(e.target.value)}
               />
@@ -50,28 +51,52 @@ export function Navbar({ onSearch, searchValue }: NavbarProps) {
           </div>
         )}
 
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="shrink-0 rounded-full">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground text-sm font-semibold">
-                {user?.name.charAt(0).toUpperCase()}
-              </div>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-48">
-            <DropdownMenuItem className="text-muted-foreground text-xs" disabled>
-              {user?.email}
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => navigate("/my-items")}>
-              <FileText className="mr-2 h-4 w-4" />
-              Minhas Publicações
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={handleLogout} className="text-destructive">
-              <LogOut className="mr-2 h-4 w-4" />
-              Sair
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <div className="flex items-center gap-2">
+          <Button
+            asChild
+            className="hidden rounded-[8px] bg-[#061f40] px-4 text-white shadow-sm hover:bg-[#0b2b58] md:inline-flex"
+          >
+            <Link to="/create">
+              <Plus className="h-4 w-4" />
+              Publicar
+            </Link>
+          </Button>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-11 rounded-[8px] px-2 hover:bg-white/70">
+                <div className="flex h-9 w-9 items-center justify-center rounded-[8px] bg-[#f4634c] text-sm font-bold text-white">
+                  {user?.name.charAt(0).toUpperCase() ?? <UserRound className="h-4 w-4" />}
+                </div>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56 rounded-[8px] border-[#061f40]/10">
+              <DropdownMenuItem className="text-xs font-medium text-muted-foreground" disabled>
+                {user?.name}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate("/my-items")}>
+                <FileText className="mr-2 h-4 w-4" />
+                Minhas Publicações
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate("/create")}>
+                <Plus className="mr-2 h-4 w-4" />
+                Nova publicação
+              </DropdownMenuItem>
+              {isAdmin && (
+                <>
+                  <DropdownMenuItem onClick={() => navigate("/admin")}>
+                    <Shield className="mr-2 h-4 w-4" />
+                    Painel Admin
+                  </DropdownMenuItem>
+                </>
+              )}
+              <DropdownMenuItem onClick={handleLogout} className="text-destructive">
+                <LogOut className="mr-2 h-4 w-4" />
+                Sair
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
     </header>
   );
